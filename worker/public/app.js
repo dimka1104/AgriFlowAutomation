@@ -13,16 +13,23 @@ async function getCurrentUser() {
   return response.json();
 }
 
+function roleBadge(role) {
+  const label = role.charAt(0).toUpperCase() + role.slice(1);
+  return `<span class="badge badge-${role}">${label}</span>`;
+}
+
 function renderNav(user) {
   const nav = document.getElementById("navbar");
   if (!nav) return;
   nav.innerHTML = `
-    <span class="brand">AgriFlow</span>
+    <a href="/dashboard" class="brand">
+      <span class="brand-mark" aria-hidden="true">🌱</span> AgriFlow
+    </a>
     <div class="nav-links">
       <a href="/dashboard">Dashboard</a>
       ${user.role === "master" ? '<a href="/admin">Admin</a>' : ""}
-      <span class="nav-user">${user.username} (${user.role})</span>
-      <a href="#" id="logout-link">Log out</a>
+      <span class="nav-user">${user.username} ${roleBadge(user.role)}</span>
+      <a href="#" id="logout-link" class="nav-logout">Log out</a>
     </div>
   `;
   document.getElementById("logout-link").addEventListener("click", async (event) => {
