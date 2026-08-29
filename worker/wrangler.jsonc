@@ -13,6 +13,12 @@
 			"database_id": "63d755d9-487a-46e0-a64c-bb08b8ef1121"
 		}
 	],
+	"routes": [
+		{
+			"pattern": "agriflowautomation.com",
+			"custom_domain": true
+		}
+	],
 	"assets": {
 		"directory": "./public/",
 		"binding": "ASSETS"
