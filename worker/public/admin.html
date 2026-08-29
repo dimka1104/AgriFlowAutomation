@@ -68,27 +68,31 @@
       tr.appendChild(usernameTd);
 
       const roleTd = document.createElement("td");
-      const roleSelect = document.createElement("select");
-      for (const value of ["user", "manager"]) {
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = value === "user" ? "User" : "Manager";
-        option.selected = user.role === value;
-        roleSelect.appendChild(option);
-      }
-      roleSelect.addEventListener("change", async () => {
-        const response = await apiFetch(`/api/admin/users/${user.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ role: roleSelect.value }),
-        });
-        if (response.ok) {
-          showMessage(`Updated access level for ${user.username}.`, false);
-        } else {
-          const data = await response.json().catch(() => ({}));
-          showMessage(data.detail || "Failed to update access level.", true);
+      if (user.role === "master") {
+        roleTd.appendChild(document.createTextNode("Master"));
+      } else {
+        const roleSelect = document.createElement("select");
+        for (const value of ["user", "manager"]) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value === "user" ? "User" : "Manager";
+          option.selected = user.role === value;
+          roleSelect.appendChild(option);
         }
-      });
-      roleTd.appendChild(roleSelect);
+        roleSelect.addEventListener("change", async () => {
+          const response = await apiFetch(`/api/admin/users/${user.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ role: roleSelect.value }),
+          });
+          if (response.ok) {
+            showMessage(`Updated access level for ${user.username}.`, false);
+          } else {
+            const data = await response.json().catch(() => ({}));
+            showMessage(data.detail || "Failed to update access level.", true);
+          }
+        });
+        roleTd.appendChild(roleSelect);
+      }
       tr.appendChild(roleTd);
 
       const passwordTd = document.createElement("td");

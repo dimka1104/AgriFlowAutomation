@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 
 from agriflow.db import (
     create_user,
-    get_manageable_user,
+    get_user_summary,
     get_user_by_username,
-    list_manageable_users,
+    list_users as list_users_from_db,
     update_user_password,
     update_user_role,
 )
@@ -41,7 +41,7 @@ def _serialize(user) -> dict:
 
 @router.get("")
 async def list_users(request: Request, master: dict = Depends(require_master)):
-    users = await list_manageable_users(get_env(request))
+    users = await list_users_from_db(get_env(request))
     return [_serialize(u) for u in users]
 
 
@@ -68,12 +68,15 @@ async def update_user(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Provide a password and/or role to update")
 
     env = get_env(request)
-    if await get_manageable_user(env, user_id) is None:
+    user = await get_user_summary(env, user_id)
+    if user is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    if user.role == "master" and payload.role is not None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "The master role cannot be changed")
 
     if payload.password is not None:
         await update_user_password(env, user_id, hash_password(payload.password))
     if payload.role is not None:
         await update_user_role(env, user_id, payload.role)
 
-    return _serialize(await get_manageable_user(env, user_id))
+    return _serialize(await get_user_summary(env, user_id))

@@ -25,19 +25,20 @@ async def create_user(env, username: str, password_hash: str, role: str):
     return await get_user_by_username(env, username)
 
 
-async def list_manageable_users(env):
+async def list_users(env):
     result = await (
         env.DB.prepare(
-            "SELECT id, username, role, created_at FROM users WHERE role != 'master' ORDER BY created_at DESC"
+            "SELECT id, username, role, created_at FROM users "
+            "ORDER BY CASE WHEN role = 'master' THEN 0 ELSE 1 END, created_at DESC"
         ).all()
     )
     return result.results
 
 
-async def get_manageable_user(env, user_id: int):
+async def get_user_summary(env, user_id: int):
     return (
         await env.DB.prepare(
-            "SELECT id, username, role, created_at FROM users WHERE id = ? AND role != 'master'"
+            "SELECT id, username, role, created_at FROM users WHERE id = ?"
         )
         .bind(user_id)
         .first()
