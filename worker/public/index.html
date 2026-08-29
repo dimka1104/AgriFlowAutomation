@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgriFlow</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <script src="/app.js"></script>
+  <script>
+    (async () => {
+      const user = await getCurrentUser();
+      window.location.href = user ? "/dashboard" : "/login";
+    })();
+  </script>
+</body>
+</html>

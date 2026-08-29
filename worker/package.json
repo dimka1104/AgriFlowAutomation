@@ -1,0 +1,14 @@
+{
+	"name": "agriflow",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "uv run pywrangler dev",
+		"deploy": "uv run pywrangler deploy",
+		"d1:init:local": "uv run pywrangler d1 execute agriflow --local --file migrations/0001_init.sql",
+		"d1:init:remote": "uv run pywrangler d1 execute agriflow --remote --file migrations/0001_init.sql"
+	},
+	"devDependencies": {
+		"wrangler": "^4.114.0"
+	}
+}

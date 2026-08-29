@@ -1,0 +1,15 @@
+[project]
+name = "agriflow"
+version = "0.1.0"
+description = "AgriFlow control dashboard API, running on Cloudflare Workers with D1 + R2"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "itsdangerous",
+]
+
+[dependency-groups]
+dev = [
+    "workers-py",
+    "workers-runtime-sdk",
+]

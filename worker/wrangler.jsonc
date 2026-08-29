@@ -1,0 +1,23 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "agriflow",
+	"main": "src/worker.py",
+	"compatibility_date": "2026-08-29",
+	"compatibility_flags": [
+		"python_workers"
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "agriflow",
+			"database_id": "63d755d9-487a-46e0-a64c-bb08b8ef1121"
+		}
+	],
+	"assets": {
+		"directory": "./public/",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	}
+}

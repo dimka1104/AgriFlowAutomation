@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in - AgriFlow</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="auth-card">
+      <h1>AgriFlow</h1>
+      <p class="subtitle">Sign in to manage your farm</p>
+      <div id="error" class="flash flash-danger" hidden></div>
+      <form id="login-form">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" autofocus required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required>
+        </div>
+        <button type="submit" class="btn">Log in</button>
+      </form>
+    </div>
+  </main>
+  <script src="/app.js"></script>
+  <script>
+    (async () => {
+      const existing = await getCurrentUser();
+      if (existing) {
+        window.location.href = "/dashboard";
+      }
+    })();
+
+    document.getElementById("login-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const errorBox = document.getElementById("error");
+      errorBox.hidden = true;
+
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const response = await apiFetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        window.location.href = "/dashboard";
+        return;
+      }
+
+      const data = await response.json().catch(() => ({}));
+      errorBox.textContent = data.detail || "Invalid username or password.";
+      errorBox.hidden = false;
+    });
+  </script>
+</body>
+</html>

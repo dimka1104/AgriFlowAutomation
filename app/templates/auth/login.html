@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Log in - AgriFlow{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>AgriFlow</h1>
+  <p class="subtitle">Sign in to manage your farm</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="field">
+      {{ form.username.label }}
+      {{ form.username(size=32, autofocus=true) }}
+    </div>
+    <div class="field">
+      {{ form.password.label }}
+      {{ form.password(size=32) }}
+    </div>
+    {{ form.submit(class_="btn") }}
+  </form>
+</div>
+{% endblock %}

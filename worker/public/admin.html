@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - AgriFlow</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <main class="container">
+    <h1>Master Admin</h1>
+    <p>Master-only controls will go here (e.g. managing users).</p>
+  </main>
+  <script src="/app.js"></script>
+  <script>
+    (async () => {
+      const user = await requireMaster();
+      if (!user) return;
+    })();
+  </script>
+</body>
+</html>

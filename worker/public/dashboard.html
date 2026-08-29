@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - AgriFlow</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+  <main class="container">
+    <h1>Dashboard</h1>
+    <p id="welcome">Loading...</p>
+  </main>
+  <script src="/app.js"></script>
+  <script>
+    (async () => {
+      const user = await requireUser();
+      if (!user) return;
+
+      const response = await apiFetch("/api/dashboard");
+      const data = await response.json();
+      document.getElementById("welcome").textContent = data.message;
+    })();
+  </script>
+</body>
+</html>
