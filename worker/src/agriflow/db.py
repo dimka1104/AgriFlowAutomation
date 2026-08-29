@@ -23,3 +23,38 @@ async def create_user(env, username: str, password_hash: str, role: str):
         .run()
     )
     return await get_user_by_username(env, username)
+
+
+async def list_manageable_users(env):
+    result = await (
+        env.DB.prepare(
+            "SELECT id, username, role, created_at FROM users WHERE role != 'master' ORDER BY created_at DESC"
+        ).all()
+    )
+    return result.results
+
+
+async def get_manageable_user(env, user_id: int):
+    return (
+        await env.DB.prepare(
+            "SELECT id, username, role, created_at FROM users WHERE id = ? AND role != 'master'"
+        )
+        .bind(user_id)
+        .first()
+    )
+
+
+async def update_user_password(env, user_id: int, password_hash: str):
+    await (
+        env.DB.prepare("UPDATE users SET password_hash = ? WHERE id = ?")
+        .bind(password_hash, user_id)
+        .run()
+    )
+
+
+async def update_user_role(env, user_id: int, role: str):
+    await (
+        env.DB.prepare("UPDATE users SET role = ? WHERE id = ?")
+        .bind(role, user_id)
+        .run()
+    )

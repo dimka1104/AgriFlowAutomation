@@ -9,14 +9,161 @@
 <body>
   <nav class="navbar" id="navbar"></nav>
   <main class="container">
-    <h1>Master Admin</h1>
-    <p>Master-only controls will go here (e.g. managing users).</p>
+    <h1>User Management</h1>
+    <div id="message" class="flash" hidden></div>
+
+    <section class="card">
+      <h2>Add user</h2>
+      <form id="create-form">
+        <div class="field">
+          <label for="new-username">Username</label>
+          <input id="new-username" type="text" required minlength="3" maxlength="64">
+        </div>
+        <div class="field">
+          <label for="new-password">Password</label>
+          <input id="new-password" type="password" required minlength="8">
+        </div>
+        <div class="field">
+          <label for="new-role">Access level</label>
+          <select id="new-role">
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Add user</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Users</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Access level</th>
+            <th>New password</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </section>
   </main>
   <script src="/app.js"></script>
   <script>
+    function showMessage(text, isError) {
+      const box = document.getElementById("message");
+      box.textContent = text;
+      box.className = "flash " + (isError ? "flash-danger" : "flash-success");
+      box.hidden = false;
+    }
+
+    function userRow(user) {
+      const tr = document.createElement("tr");
+
+      const usernameTd = document.createElement("td");
+      usernameTd.textContent = user.username;
+      tr.appendChild(usernameTd);
+
+      const roleTd = document.createElement("td");
+      const roleSelect = document.createElement("select");
+      for (const value of ["user", "manager"]) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value === "user" ? "User" : "Manager";
+        option.selected = user.role === value;
+        roleSelect.appendChild(option);
+      }
+      roleSelect.addEventListener("change", async () => {
+        const response = await apiFetch(`/api/admin/users/${user.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ role: roleSelect.value }),
+        });
+        if (response.ok) {
+          showMessage(`Updated access level for ${user.username}.`, false);
+        } else {
+          const data = await response.json().catch(() => ({}));
+          showMessage(data.detail || "Failed to update access level.", true);
+        }
+      });
+      roleTd.appendChild(roleSelect);
+      tr.appendChild(roleTd);
+
+      const passwordTd = document.createElement("td");
+      const passwordInput = document.createElement("input");
+      passwordInput.type = "password";
+      passwordInput.placeholder = "New password";
+      passwordInput.minLength = 8;
+      passwordTd.appendChild(passwordInput);
+      tr.appendChild(passwordTd);
+
+      const actionTd = document.createElement("td");
+      const updateButton = document.createElement("button");
+      updateButton.type = "button";
+      updateButton.className = "btn btn-small";
+      updateButton.textContent = "Update password";
+      updateButton.addEventListener("click", async () => {
+        if (passwordInput.value.length < 8) {
+          showMessage("Password must be at least 8 characters.", true);
+          return;
+        }
+        const response = await apiFetch(`/api/admin/users/${user.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ password: passwordInput.value }),
+        });
+        if (response.ok) {
+          passwordInput.value = "";
+          showMessage(`Password updated for ${user.username}.`, false);
+        } else {
+          const data = await response.json().catch(() => ({}));
+          showMessage(data.detail || "Failed to update password.", true);
+        }
+      });
+      actionTd.appendChild(updateButton);
+      tr.appendChild(actionTd);
+
+      return tr;
+    }
+
+    async function loadUsers() {
+      const response = await apiFetch("/api/admin/users");
+      if (!response.ok) {
+        showMessage("Failed to load users.", true);
+        return;
+      }
+      const users = await response.json();
+      const body = document.getElementById("users-body");
+      body.innerHTML = "";
+      for (const user of users) {
+        body.appendChild(userRow(user));
+      }
+    }
+
+    document.getElementById("create-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const username = document.getElementById("new-username").value;
+      const password = document.getElementById("new-password").value;
+      const role = document.getElementById("new-role").value;
+
+      const response = await apiFetch("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify({ username, password, role }),
+      });
+
+      if (response.ok) {
+        document.getElementById("create-form").reset();
+        showMessage(`Created user ${username}.`, false);
+        await loadUsers();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        showMessage(data.detail || "Failed to create user.", true);
+      }
+    });
+
     (async () => {
       const user = await requireMaster();
       if (!user) return;
+      await loadUsers();
     })();
   </script>
 </body>
