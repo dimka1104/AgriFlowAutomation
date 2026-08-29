@@ -11,6 +11,12 @@
   <main class="container">
     <h1>Dashboard</h1>
     <p id="welcome">Loading...</p>
+    <div id="master-panel" hidden>
+      <section class="card">
+        <h2>Master tools</h2>
+        <a href="/admin" class="btn" style="display:inline-block;width:auto;text-decoration:none;">Manage Users</a>
+      </section>
+    </div>
   </main>
   <script src="/app.js"></script>
   <script>
@@ -21,6 +27,10 @@
       const response = await apiFetch("/api/dashboard");
       const data = await response.json();
       document.getElementById("welcome").textContent = data.message;
+
+      if (user.role === "master") {
+        document.getElementById("master-panel").hidden = false;
+      }
     })();
   </script>
 </body>
